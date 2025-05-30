@@ -3,10 +3,12 @@ game.py - Lógica principal del juego
 
 Este módulo contiene la clase Game que maneja toda la lógica del juego,
 siguiendo los principios SOLID y separación de responsabilidades.
+Incluye soporte para despliegue web con Pygame Web.
 """
 
 import pygame
 import sys
+import asyncio
 from entities import Player
 from graphics import *
 from utils import *
@@ -22,6 +24,7 @@ class Game:
     - Procesar eventos de entrada
     - Actualizar lógica del juego
     - Coordinar el renderizado
+    - Soporte para ejecución web y desktop
     """
     
     def __init__(self):
@@ -61,8 +64,25 @@ class Game:
         self.pearls = create_pearls(pearls_needed)
         self.powerups = []
 
-    def run(self):
-        """Bucle principal del juego"""
+    async def run(self):
+        """Bucle principal del juego - versión asíncrona para web"""
+        running = True
+        
+        while running:
+            running = self._handle_events()
+            self._update()
+            self._render()
+            
+            pygame.display.flip()
+            self.clock.tick(FPS)
+            
+            # Permitir que el navegador procese otros eventos
+            await asyncio.sleep(0)
+        
+        self._cleanup()
+    
+    def run_sync(self):
+        """Bucle principal del juego - versión síncrona para desktop"""
         running = True
         
         while running:
@@ -330,9 +350,9 @@ class Game:
             "  * ESPACIO: disparar burbujas",
             "",
             "SISTEMA DE PUNTOS DINAMICO:",
-            "  * Nivel 1: Perlas=17pts, Enemigos=50pts",
-            "  * Nivel 5: Perlas=25pts, Enemigos=70pts",
-            "  * Nivel 10: Perlas=35pts, Enemigos=95pts",
+            "  * Nivel 1: Perlas=27pts, Enemigos=80pts",
+            "  * Nivel 5: Perlas=35pts, Enemigos=100pts",
+            "  * Nivel 10: Perlas=45pts, Enemigos=125pts",
             "",
             "PROGRESION EXPONENCIAL:",
             "  * Nivel 1: 50 puntos",

@@ -1,24 +1,34 @@
 #!/usr/bin/env python3
 """
-Aventuras en el Arrecife Perdido - Versión Simplificada
-Punto de entrada principal del juego.
-
-Este archivo solo se encarga de inicializar y ejecutar el juego,
-siguiendo el principio de Responsabilidad Única (SRP).
+Aventuras en el Arrecife Perdido - Versión Universal
+Punto de entrada principal del juego que funciona en desktop y web.
 """
 
+import asyncio
+import sys
 from game import Game
 
 def main():
     """
-    Función principal que ejecuta el juego.
-    
-    Esta función es el punto de entrada único del programa,
-    manteniendo la separación de responsabilidades.
+    Función principal que detecta el entorno y ejecuta el juego apropiadamente.
     """
     try:
         game = Game()
-        game.run()
+        
+        # Detectar si estamos en un entorno web (Pygame Web/Emscripten)
+        try:
+            # Intentar detectar entorno web
+            import platform
+            if hasattr(platform, 'machine') and 'wasm' in platform.machine().lower():
+                # Estamos en web, usar versión asíncrona
+                asyncio.run(game.run())
+            else:
+                # Estamos en desktop, usar versión síncrona
+                game.run_sync()
+        except:
+            # Fallback: usar versión síncrona para desktop
+            game.run_sync()
+            
     except KeyboardInterrupt:
         print("\nJuego interrumpido por el usuario.")
     except Exception as e:
